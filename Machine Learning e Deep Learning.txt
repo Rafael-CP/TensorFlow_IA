@@ -1,0 +1,107 @@
+Anacoda => permite a criação de ambientes de programação com configurações variadas (Packages e Libraries)
+Para acessar estes ambientes pelo cmd, deve-se usar o comando: "activate (NOME NO AMBIENTE)" com isso, 
+você acaba acessando o python com as configurações desejadas. Para retornar ao cmd normal do Windows, use o comando quit()
+tensorflow.__version__ => checa a versao do tensorflow instalado
+
+Para utilizar a biblioteca TensorFlow corretamente, é necessário instalar o nVidia CUDA Toolkit
+https://developer.nvidia.com/cuda-11.0-download-archive (no momento q baixei era preciso da versão 11)
+
+Transformar uma lista para uma array no numpy pode ser útil para certas funções da própria biblioteca 
+
+Jupyter Notebook:
+Ctrl+Enter = Executa linha
+Shift+Enter = Executa linha e vai pra próxima
+a = cria nova linha
+x = corta linha
+d + d = exclui linha
+tab = completa a função
+Shift+Tab = Explica a função e seus parametros
+
+Tensorflow => Biblioteca open-source de computação numérica para Machine Learning e Deep Learning
+Tensor é uma generalização, então pode ser um escalar, um vetor, uma matriz, etc.
+Utiliza grafos para operações matemáticas, isso torna possível a computação paralela para aumentar o desempenho
+https://www.tensorflow.org/api_docs/python/tf/Tensor
+
+Para usar o tensorflow 1.0, deve-se adicionar, no inicio do código:
+import tensorflow.compat.v1 as tf
+tf1.compat.v1.disable_eager_execution()
+
+O tensor flow tem 2 tipos de execução: Eager(imediato) e Graph(grafo):
+Na eager, as operações são feitas imediatamente, enquanto na graph, é criado uma estrutura que será usara quando necessario
+
+Para declarar constantes => tf.constant(VALOR)
+Usando type(CONTANTE TF), descobrimos que sera do tipo EagerTensor, e não Tensor, isso faz com que 
+a constante possua a função numpy, que retorna diretamente o valor contido nela.
+
+Para versões antigas, não existia o eager tensor, então era necessario usar o código abaixo para entao obter o resultado da operação
+"with tf.Session() as sess: 
+	s = sess.run(soma)"
+Para versões atuais, o valor contido no tensor é facilmente obtido através do numpy (até mesmo com print é exibido)
+ex: print(nome_tensor) ou nome_tensor.numpy()
+Em tensores de string, é notavel a presença de um b'' entre a string printada, isso é comum do python, b = bytes literal. 
+
+O mesmo que ocorre em constantes ocorre também em variáveis.
+Para variáveis, é possivel setar um nome para a mesma e acessa-lo com variavel.name ( sem os () ) 
+
+Placeholders => variáveis que atribuímos dados posteriormente no programa
+Não existe mais no TF 2.0
+
+Geração de Grafos (Usando TF 1.0)
+Para gerar um grafo de uma operação, é necessario declarar, dentro da sessão da operação:
+
+tf1.reset_default_graph() #  Para gerar grafos respectivos à apenas esta sessão, deletando os grafos feitos anteriormente. Esta linha deve estar antes das operações
+with tf1.Session() as sess:
+    writer = tf.summary.FileWriter('Nome da Pasta em que será salva (. para salvar diretamente na pasta fonte do arquivo, porem pode gerar erros)', sess.graph)
+    print(sess.run(c)) # Executando c, que depende de a e b, será necessário executar a e b, poupando tempo
+    writer.close() # Libera memória
+
+Para visualizar o grafo gerado, será necessário o TensorBoard. Para executá-lo:
+>Abrir o cmd (pode ser pelo prompt do anaconda também)
+>Digitar o comando tensorboard --logdir="LOCAL DA PASTA COM OS GRAFOS" (Exemplo: C:\Users\Rafael\Desktop\TensorFlow\Sintaxe\output)
+>Irá te retornar um link. Copie e cole no navegador para visualizar os grafos
+>Manter o terminal aberto enquanto estiver no site, caso contrário, a conexão cessará 
+>Caso ocorra um erro, uma possível solução é colocar, depois do diretório, o comando --host localhost --port 8088
+
+Criação de Escopos = Facilita a visualização de grafos mais complexos
+Para isso, devemos separar as operações que queremos em diferentes escopos, como por exemplo:
+
+#Vale lembrar que o nome do escopo nao permite espaços, acentos e nem ç
+with tf1.name_scope('Operacoes'):
+    with tf1.name_scope('Escopo_1'):
+        a = tf.add(2, 2, name = 'add')
+    with tf1.name_scope('Escopo_2'):
+        b = tf.multiply(a, 3, name = 'mult1')
+        c = tf.multiply(a, b, name = 'mult2')
+
+Regressão Linear => Previsão de números
+O objetivo é gerar uma reta y = a*x + b onde os valores a e b geram o menor erro de acordo com as amostras dadas
+
+MSE = Mean square error = 1/N * Somatório de 1 até N [(fi - yi)^2] => Fórmula para calcular o erro de uma previsão
+N é a quantidade de amostras, fi é o resultado real e yi é o resultado da amostra
+Sua vantagem é a penalização de erros maiores
+Também existe o MAE - Mean Absolute Error, que na fórmula não eleva a diferença ao quadrado
+
+Existem algumas maneiras de se ajustar os parâmetros a e b da equação:
+Design Matrix => para databases menores, trabalha com inversão de matrizes(custo computacional alto)
+Gradient Descendent => desempenho melhor para muitos atributos, calcula o declive das curvas de erro através de derivadas parciais em busca do mínimo global
+Regressão Linear Múltipla => Mais atributos a e x na forma da reta
+
+Biblioteca Sklearn => utilizada para Deep Learning 
+
+Para executar uma regressão linear como tensorflow, é necessario primeiro escalonar os valores do eixo x e y através das bibliotecas do sklearn
+otimizador = tf.keras.optimizers.SGD(learning_rate=0.001) # tf.train.GradientDescentOptimizer não existe mais no TF2
+
+É possível importar data_sets de exemplo com:
+from tensorflow.keras.datasets import boston_housing
+https://keras.io/api/datasets/
+
+Para utilizar databases externas, utilizamos o pandas
+batch => variável criada para percorrer a database, evitando com que se declare um placeholder muito grande.
+
+Até agora estavamos utilizando a mesma database para treinamento e para teste, porém o ideal é separar para os dois casos
+
+Também estavamos escalonando os dados da tabela através da padronização (StandardScaler),
+porém a normalização (MinMaxScaler) também é uma forma de fazer isso.
+A padronização é mais resistente à dados com muitas divergências e comportamentos fora do padrão.
+Na normalização, a escala resultante fica no intervalo entre 0 e 1
+
